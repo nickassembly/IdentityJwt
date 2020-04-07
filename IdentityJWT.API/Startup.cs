@@ -1,15 +1,21 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
+using IdentityJWT.API.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 
 namespace IdentityJWT.API
 {
@@ -25,6 +31,38 @@ namespace IdentityJWT.API
       // This method gets called by the runtime. Use this method to add services to the container.
       public void ConfigureServices(IServiceCollection services)
       {
+         // Configure EntityFramework with SQL server
+         services.AddDbContext<ApplicationDbContext>(options =>
+         {
+            options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+         });
+
+         services.AddIdentity<IdentityUser, IdentityRole>(options =>
+         {
+            options.Password.RequireDigit = true;
+            options.Password.RequireLowercase = true;
+            options.Password.RequiredLength = 5;
+         }).AddEntityFrameworkStores<ApplicationDbContext>()
+         .AddDefaultTokenProviders();
+
+         services.AddAuthentication(auth =>
+         {
+            auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            auth.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+         }).AddJwtBearer(options =>
+         {
+            options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+            {
+               ValidateIssuer = true,
+               ValidateAudience = true,
+               ValidAudience = "http://ahmadmozaffar.net",
+               ValidIssuer = "http://ahmadmozaffar.net",
+               RequireExpirationTime = true,
+               IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("This is the key that we will use in the encryption")),
+               ValidateIssuerSigningKey = true
+            };
+         });
+
          services.AddControllers();
       }
 
