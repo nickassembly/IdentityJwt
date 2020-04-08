@@ -20,5 +20,9 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\IdentityJWT.Shared\IdentityJWT.Shared.csproj" />
+  </ItemGroup>
+
 
 </Project>
