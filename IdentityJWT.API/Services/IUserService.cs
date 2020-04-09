@@ -44,6 +44,7 @@ namespace IdentityJWT.API.Services
 
          if (result.Succeeded)
          {
+            // TODO: send confirmation email
             return new UserManagerResponse
             {
                Message = "User created Successfully",
