@@ -1,10 +1,15 @@
-﻿using System;
+﻿using IdentityJWT.Shared;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Text;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -26,5 +31,25 @@ namespace IdentityJWT.Client
         {
             this.InitializeComponent();
         }
-    }
+
+      protected async override void OnNavigatedTo(NavigationEventArgs e)
+      {
+         string accessToken = e.Parameter.ToString();
+
+         HttpClient client = new HttpClient();
+
+         client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+
+         var response = await client.GetAsync("http://localhost:63151/weatherforecast");
+
+         var responseBody = await response.Content.ReadAsStringAsync();
+
+         var weatherForcasts = JsonConvert.DeserializeObject <IEnumerable<WeatherForecast>>(responseBody);
+
+         lstWeatherForcast.ItemsSource = weatherForcasts;
+
+     
+         base.OnNavigatedTo(e);
+      }
+   }
 }

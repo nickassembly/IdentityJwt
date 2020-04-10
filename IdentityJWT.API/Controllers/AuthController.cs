@@ -38,6 +38,24 @@ namespace IdentityJWT.API.Controllers
          return BadRequest("Some properties are not valid"); // Status Code: 400
       }
 
+      // /api/auth/login
+      [HttpPost("Login")]
+      public async Task<IActionResult> LoginAsync([FromBody]LoginViewModel model)
+      {
+         if (ModelState.IsValid)
+         {
+            var result = await _userService.LoginUserAsync(model);
+
+            if (result.IsSuccess)
+               return Ok(result);
+
+            return BadRequest(result);
+               
+         }
+
+         return BadRequest("Some properties are not valid");
+      }
+
 
     }
 }

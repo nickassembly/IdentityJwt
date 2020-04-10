@@ -1,8 +1,10 @@
 ﻿using IdentityJWT.Shared;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
@@ -10,11 +12,11 @@ using System.Threading.Tasks;
 
 namespace IdentityJWT.API.Services
 {
-    public interface IUserService
-    {
+   public interface IUserService
+   {
       Task<UserManagerResponse> RegisterUserAsync(RegisterViewModel model);
       Task<UserManagerResponse> LoginUserAsync(LoginViewModel model);
-    }
+   }
 
    public class UserService : IUserService
    {
@@ -32,7 +34,7 @@ namespace IdentityJWT.API.Services
       {
          var user = await _userManager.FindByEmailAsync(model.Email);
 
-         if(user == null)
+         if (user == null)
          {
             return new UserManagerResponse
             {
@@ -58,6 +60,23 @@ namespace IdentityJWT.API.Services
             new Claim(ClaimTypes.NameIdentifier, user.Id)
          };
 
+         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["AuthSettings:Key"]));
+
+         var token = new JwtSecurityToken(
+            issuer: _configuration["AuthSettings:Issuer"],
+            audience: _configuration["AuthSettings:Audience"],
+            claims: claims,
+            expires: DateTime.Now.AddDays(30),
+            signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256));
+
+         string tokenAsString = new JwtSecurityTokenHandler().WriteToken(token);
+
+         return new UserManagerResponse
+         {
+            Message = tokenAsString,
+            IsSuccess = true,
+            ExpireDate = token.ValidTo
+         };
       }
 
       public async Task<UserManagerResponse> RegisterUserAsync(RegisterViewModel model)
