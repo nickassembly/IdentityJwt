@@ -65,7 +65,7 @@ namespace IdentityJWT.API
          });
 
          services.AddScoped<IUserService, UserService>();
-
+         services.AddTransient<IMailService, SendGridMailService>();
          services.AddControllers();
       }
 

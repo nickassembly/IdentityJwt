@@ -15,10 +15,11 @@ namespace IdentityJWT.API.Controllers
     {
 
       private readonly IUserService _userService;
-
-      public AuthController(IUserService userService)
+      private readonly IMailService _mailService;
+      public AuthController(IUserService userService, IMailService mailService)
       {
          _userService = userService;
+         _mailService = mailService;
       }
 
       // /api/auth/register
@@ -47,7 +48,10 @@ namespace IdentityJWT.API.Controllers
             var result = await _userService.LoginUserAsync(model);
 
             if (result.IsSuccess)
+            {
+               await _mailService.SendEmailAsync(model.Email, "New login", "<h1>Hello, New Login to your account</h1><p>New login to your account at " + DateTime.Now + "</p>");
                return Ok(result);
+            }
 
             return BadRequest(result);
                
