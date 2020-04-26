@@ -11,19 +11,18 @@ namespace IdentityJWT.API.Services
 {
    public interface IMailService
    {
+
       Task SendEmailAsync(string toEmail, string subject, string content);
    }
 
    public class SendGridMailService : IMailService
    {
-
       private IConfiguration _configuration;
 
       public SendGridMailService(IConfiguration configuration)
       {
          _configuration = configuration;
       }
-
 
       public async Task SendEmailAsync(string toEmail, string subject, string content)
       {

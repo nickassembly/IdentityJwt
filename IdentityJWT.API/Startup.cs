@@ -67,6 +67,8 @@ namespace IdentityJWT.API
          services.AddScoped<IUserService, UserService>();
          services.AddTransient<IMailService, SendGridMailService>();
          services.AddControllers();
+         services.AddRazorPages();
+
       }
 
       // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -79,6 +81,8 @@ namespace IdentityJWT.API
 
          app.UseHttpsRedirection();
 
+         app.UseStaticFiles();
+
          app.UseRouting();
 
          app.UseAuthentication();
@@ -87,6 +91,7 @@ namespace IdentityJWT.API
 
          app.UseEndpoints(endpoints =>
          {
+            endpoints.MapRazorPages();
             endpoints.MapControllers();
          });
       }
